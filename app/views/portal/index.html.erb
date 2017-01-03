@@ -1,0 +1,93 @@
+<% content_for :head do %>
+<style>
+th {
+	background-color: LimeGreen;
+}
+td {
+	background-color: GreenYellow;
+}
+td.person {
+	background-color: Green;
+}
+th,td {
+	margin: 10px;
+	padding: 10px;
+}
+</style>
+<% end # content for head %>
+
+<div>
+  <h1 style="text-align:center;">Welcome to your Temple Ordinance Manager (TOM)</h1>
+	<% if !current_user %>
+		<p>TOM works with FamilySearch to track your reserved ordinances, allowing you to assign specific ordinances to family members without losing control of the reservation in the FamilySearch system.</p>
+		<p>When managing your assignments, you may provide contact information for your relatives for you own personal use.  This is optional, however.  The information you enter into this system is never shared with anyone else but may inadvertently be disclosed to the developer of this website while debugging, developing, or performing similar duties.  Your use of this system is your consent to this disclosure.  This website provides no guarantees for reliability or availability of this system, and like most things in life falls into the category of use at your own risk.</p>
+		<p>Use the 'log in' link in the menu above to get started.</p>
+	<% else %>
+		<h2>Your current reservations</h2>
+		<%
+			client = current_user.client
+			begin
+				response = client.get("/platform/reservations/users/#{current_user.uid}")
+				people = Person.from_response( current_user, response )
+			rescue FamilySearch::Error::ClientError
+				people = []
+			end
+			if people.empty?
+		%>
+			<div>You have no reservations at this time.</div>
+		<% else %>
+			<table border=1 style="margin:4;padding:4;border-collapse:collapse;">
+				<tr>
+					<th>Ordinance</th>
+					<th>Status</th>
+					<th>created</th>
+					<th>modified</th>
+					<th>Assigned to</th>
+					<th>Since</th>
+					<th>Notes</th>
+				</tr>
+			<% people.each do |person| %>
+				<tr>
+					<td class="person" colspan="7"><%= person.id %> - <%= person.name %></td>
+				</tr>
+				<% person.reservations.each do |ordinance| %>
+					<tr>
+						<td><%= ordinance.name %></td>
+						<td><%= ordinance.status %></td>
+						<td><%= ordinance.created %></td>
+						<td><%= ordinance.modified %></td>
+						<td><% assignment = ordinance.assigned_contact %>
+								<% if assignment %>
+									<%= assignment.contact.full_name %> <%= link_to 'unassign', assignment_path(assignment), method: :delete, data: {confirm: 'This will delete the assignment.  Proceed?'} %>
+								<% else %>
+									<% if current_user.contacts.count > 0 %>
+										<%= form_for( Assignment.new ) do |f| %>
+											<%= f.hidden_field :person_id, value: person.id %>
+											<%= f.hidden_field :ordinance_nm, value: ordinance.name %>
+											<%=	collection_select( :assignment, :contact_id, current_user.contacts.order(:last_nm, :first_nm).all, :id, :last_first_nm, {include_blank: true}) %>
+											<%= f.submit %>
+										<% end %>
+									<% else %>
+										<%= link_to 'add contact', contacts_path %>
+									<% end %>
+								<% end %>
+						</td>
+						<td><%= assignment.created_at.to_s(:short_date) if assignment %></td>
+						<td>
+							<% if assignment %>
+								<%= link_to assignment.notes ? 'Edit Note' : 'Add Note', edit_assignment_path(assignment) %> - <%= assignment.notes %>
+							<% end %>
+						</td>
+					</tr>
+				<% end # each ordinance %>
+				<!--<tr><td><pre><%#= person.reservations %></pre></td></tr>-->
+				<!--<tr><td><pre><%# person.debug %></pre></td></tr>-->
+				<tr>
+					<td colspan="7"><%= link_to person.comment ? "Edit Comment" : "Add Comment", edit_comment_path(person.id) %> - <%= person.comment %></td>
+				</tr>
+			<% end # each person %>
+		<% end # people.empty? %>
+		</table>
+		<p><%# debug response %></p>
+	<% end %>
+</div>

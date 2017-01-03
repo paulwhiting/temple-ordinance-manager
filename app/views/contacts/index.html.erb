@@ -1,0 +1,42 @@
+<%- title 'Contacts' %>
+<% content_for :head do %>
+<style>
+table {
+	border-collapse: collapse;
+}
+
+table, tr, th, td {
+	border: 1px solid black;
+}
+	
+tr, th, td {
+	padding: 15px;
+}
+
+</style>
+<% end %>
+
+<h2>Your contacts</h2>
+
+<table>
+	<tr>
+		<th>Action</th>
+		<th>Name</th>
+		<th>Email</th>
+		<th>Phone</th>
+		<th>Notes</th>
+	</tr>
+<% @contacts.each do |contact| %>
+	<tr>
+		<td><%= link_to 'edit', edit_contact_path(contact) %> <%= link_to 'delete', contact_path(contact), method: :delete, data: {confirm: 'This will delete the contact.  Proceed?'} %></td>
+		<td><%= contact.full_name %></td>
+		<td><%= contact.email %></td>
+		<td><%= contact.phone %></td>
+		<td><%= contact.notes %></td>
+	</tr>
+<% end %>
+	<tr>
+		<td colspan="5"><%= link_to 'add', new_contact_path %></td>
+	</tr>
+</table>
+

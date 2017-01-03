@@ -1,0 +1,11 @@
+<%- title @contact.id ? 'Edit Contact' : 'Add Contact' %>
+<h2><%= @contact.id ? 'Edit' : 'Add' %> Contact</h2>
+<%= form_for @contact, remote: false do |f| %>
+	<div><%= f.hidden_field :id %></div>
+	<div>First Name: <%= f.text_field :first_nm %></div>
+	<div>Last Name: <%= f.text_field :last_nm %></div>
+	<div>Email: <%= f.email_field :email %></div>
+	<div>Phone: <%= f.phone_field :phone %></div>
+	<div>Notes: <%= f.text_area :notes %></div>
+	<div><%= f.submit %></div>
+<% end # form_for %>

@@ -1,0 +1,6 @@
+<h2>Comment for <%= @person.id %> - <%= @person.name %></h2>
+<%= form_for @comment, remote: false do |f| %>
+	<div><%= f.hidden_field :person_id, value: @person.id %></div>
+	<div><%= f.text_area :comments %></div>
+	<div><%= f.submit %></div>
+<% end # form_for %>
