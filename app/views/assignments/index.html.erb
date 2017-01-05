@@ -1,0 +1,23 @@
+<%- title 'Assignments' %>
+
+<h2>Assignments you've made</h2>
+
+<table>
+	<tr>
+		<th>Action</th>
+		<th>Ancestor</th>
+		<th>Assignee</th>
+		<th>Since</th>
+		<th>Notes</th>
+	</tr>
+<% @assignments.each do |assignment| %>
+	<tr>
+		<td><%= link_to 'edit', edit_assignment_path(assignment) %> <%= link_to 'delete', assignment_path(assignment), method: :delete, data: {confirm: 'This will delete the assignment.  Proceed?'} %></td>
+		<td><%= assignment.person_id %></td>
+		<td><%= assignment.contact ? assignment.contact.full_name : 'ERROR: contact missing!' %></td>
+		<td><%= assignment.created_at.to_s(:short_date) %></td>
+		<td><%= assignment.notes %></td>
+	</tr>
+<% end %>
+</table>
+

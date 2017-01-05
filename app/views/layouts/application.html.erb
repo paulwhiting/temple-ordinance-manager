@@ -7,28 +7,18 @@
     <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
     <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
 		<%= content_for?(:head) ? yield(:head) : '' %>
-		<style>
-			ul#menu li {
-				display: block;
-				float: left;
-				list-style-position: inside;
-				border: 1px solid black;
-				padding: 15px;
-				margin: 0px;
-			}
-		</style>
-  </head>
+ </head>
 
   <body>
 		<ul id="menu">
-			<li><%= link_to 'Home', root_path %></li>
-			<li><%= link_to 'Contacts', contacts_path %></li>
-			<li><%= if current_user
-								link_to 'Log Out', logout_path, method: :delete
-							else
-								link_to 'Log In', '/auth/familysearch'
-							end %>
-			</li>
+			<% if current_user %>
+				<li><%= link_to 'Home', root_path %></li>
+				<li><%= link_to 'Contacts', contacts_path %></li>
+				<li><%= link_to 'Assignments', assignments_path %></li>
+				<li><%= link_to 'Log Out', logout_path, method: :delete %></li>
+			<% else %>
+				<li><%= link_to 'Log In', '/auth/familysearch' %></li>
+			<% end %>
 		</ul>
 		<div style="clear:both"></div>
 		<%= yield %>

@@ -13,3 +13,41 @@
  *= require_tree .
  *= require_self
  */
+
+body {
+	background-color: yellow;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table, tr, th, td {
+	border: 1px solid black;
+}
+	
+tr, th, td {
+	padding: 15px;
+	margin: 10px;
+}
+
+th {
+	background-color: LimeGreen;
+}
+td {
+	background-color: GreenYellow;
+}
+td.person {
+	background-color: Green;
+}
+
+ul#menu li {
+	display: block;
+	float: left;
+	list-style-position: inside;
+	border: 1px solid black;
+	padding: 15px;
+	margin: 0px;
+	background-color: lightgray;
+}
+ 

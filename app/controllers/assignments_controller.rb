@@ -21,6 +21,10 @@ class AssignmentsController < ApplicationController
 	def destroy
 		assignment = current_user.assignments.find( params[:id] )
 		assignment.destroy!
-		redirect_to root_path
+		redirect_to :back
+	end
+
+	def index
+		@assignments = current_user.assignments
 	end
 end
