@@ -10,17 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170102233628) do
+ActiveRecord::Schema.define(version: 20170114204604) do
 
   create_table "assignments", force: :cascade do |t|
     t.string   "notes"
     t.string   "person_id"
-    t.string   "ordinance_nm"
     t.datetime "created_at",   null: false
     t.datetime "updated_at",   null: false
     t.integer  "user_id"
     t.integer  "contact_id"
+    t.integer  "ordinance_id"
+    t.integer  "status_id"
     t.index ["contact_id"], name: "index_assignments_on_contact_id"
+    t.index ["ordinance_id"], name: "index_assignments_on_ordinance_id"
+    t.index ["status_id"], name: "index_assignments_on_status_id"
     t.index ["user_id"], name: "index_assignments_on_user_id"
   end
 
@@ -43,6 +46,17 @@ ActiveRecord::Schema.define(version: 20170102233628) do
     t.datetime "updated_at", null: false
     t.integer  "user_id"
     t.index ["user_id"], name: "index_contacts_on_user_id"
+  end
+
+  create_table "ordinances", force: :cascade do |t|
+    t.string "name"
+    t.string "code"
+    t.string "url"
+  end
+
+  create_table "statuses", force: :cascade do |t|
+    t.string "name"
+    t.string "url"
   end
 
   create_table "users", force: :cascade do |t|

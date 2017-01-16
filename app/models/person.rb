@@ -10,7 +10,7 @@ class Person
 		@links = person['links']
 		@name = person['display']['name']
 		@id = person['id']
-		@reservations = Ordinance.from_reservation( @current_user, self, reservations )
+		@reservations = FSOrdinance.from_reservation( @current_user, self, reservations )
 	end
 
 	#def ordinances

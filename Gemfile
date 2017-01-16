@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 
-gem 'omniauth-familysearch'
+#gem 'omniauth-familysearch'
+gem 'omniauth-familysearch', git: 'https://github.com/paulwhiting/omniauth-familysearch.git'
 gem 'omniauth-oauth2', '~> 1.3.1'
 gem 'familysearch'
 

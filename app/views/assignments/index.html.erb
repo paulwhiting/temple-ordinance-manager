@@ -6,18 +6,26 @@
 	<tr>
 		<th>Action</th>
 		<th>Ancestor</th>
+		<th>Ordinance</th>
+		<th>Status</th>
 		<th>Assignee</th>
 		<th>Since</th>
 		<th>Notes</th>
 	</tr>
-<% @assignments.each do |assignment| %>
-	<tr>
-		<td><%= link_to 'edit', edit_assignment_path(assignment) %> <%= link_to 'delete', assignment_path(assignment), method: :delete, data: {confirm: 'This will delete the assignment.  Proceed?'} %></td>
-		<td><%= assignment.person_id %></td>
-		<td><%= assignment.contact ? assignment.contact.full_name : 'ERROR: contact missing!' %></td>
-		<td><%= assignment.created_at.to_s(:short_date) %></td>
-		<td><%= assignment.notes %></td>
-	</tr>
+<% @contacts_with_assignments.each do |contact| %>
+  <tr><td class="person" colspan="7"><%= contact.full_name %></td></tr>
+  <% contact.assignments.order(:person_id, :ordinance_id).each do |assignment| 
+     related_assignments = assignment.related.pluck(:id) %>
+    <tr>
+      <td><%= link_to 'edit', edit_assignment_path(assignment) %> <%= link_to 'delete', assignment_path(assignment), method: :delete, data: {confirm: 'This will delete the assignment.  Proceed?'} %></td>
+      <td><%= assignment.person_id %></td>
+      <td><%= assignment.ordinance.name %></td>
+      <td><%= assignment.status.name if assignment.status %></td>
+      <td><%= assignment.contact ? assignment.contact.full_name : 'ERROR: contact missing!' %></td>
+      <td><%= assignment.created_at.to_s(:short_date) %></td>
+      <td><%= link_to 'Print Ordinance Card', print_assignments_path(related_assignments.join(',')) %> - <%= assignment.notes %></td>
+    </tr>
+  <% end %>
 <% end %>
 </table>
 

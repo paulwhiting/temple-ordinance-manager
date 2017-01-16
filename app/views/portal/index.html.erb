@@ -21,7 +21,6 @@
 			<table border=1 style="margin:4;padding:4;border-collapse:collapse;">
 				<tr>
 					<th>Ordinance</th>
-					<th>Status</th>
 					<th>created</th>
 					<th>modified</th>
 					<th>Assigned to</th>
@@ -30,25 +29,28 @@
 				</tr>
 			<% people.each do |person| %>
 				<tr>
-					<td class="person" colspan="7"><%= person.id %> - <%= person.name %></td>
+					<td class="person" colspan="6"><%= person.id %> - <%= person.name %></td>
 				</tr>
-				<% person.reservations.each do |ordinance| %>
+				<% person.reservations.each do |fso|
+              assignment = fso.assigned_contact %>
 					<tr>
-						<td><%= ordinance.name %></td>
-						<td><%= ordinance.status %></td>
-						<td><%= ordinance.created %></td>
-						<td><%= ordinance.modified %></td>
-						<td><% assignment = ordinance.assigned_contact %>
-								<% if assignment %>
+						<td><%= fso.ordinance.name %></td>
+						<td><%= fso.created.to_s(:short_date) if fso.created %></td>
+						<td><%= fso.modified.to_s(:short_date) if fso.modified %></td>
+						<td><% if assignment %>
 									<%= assignment.contact.full_name %> <%= link_to 'unassign', assignment_path(assignment), method: :delete, data: {confirm: 'This will delete the assignment.  Proceed?'} %>
 								<% else %>
 									<% if current_user.contacts.count > 0 %>
-										<%= form_for( Assignment.new ) do |f| %>
-											<%= f.hidden_field :person_id, value: person.id %>
-											<%= f.hidden_field :ordinance_nm, value: ordinance.name %>
-											<%=	collection_select( :assignment, :contact_id, current_user.contacts.order(:last_nm, :first_nm).all, :id, :last_first_nm, {include_blank: true}) %>
-											<%= f.submit %>
-										<% end %>
+                    <% if fso.ordinance.name != "SealingChildToParents" && fso.ordinance.name != "SealingToSpouse" %>
+                      <%= form_for( Assignment.new ) do |f| %>
+                        <%= f.hidden_field :person_id, value: person.id %>
+                        <%= f.hidden_field :ordinance_id, value: fso.ordinance.id %>
+                        <%=	collection_select( :assignment, :contact_id, current_user.contacts.order(:last_nm, :first_nm).all, :id, :last_first_nm, {include_blank: true}) %>
+                        <%= f.submit %>
+                      <% end %>
+                    <% else %>
+                      Sealings not currently supported
+                    <% end %>
 									<% else %>
 										<%= link_to 'add contact', contacts_path %>
 									<% end %>

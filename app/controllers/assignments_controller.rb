@@ -1,9 +1,14 @@
 class AssignmentsController < ApplicationController
 	def create
-		params[:assignment][:user_id] = current_user.id
-		assignment = Assignment.new(params.require(:assignment).permit(:user_id,:contact_id,:person_id,:ordinance_nm))
-		assignment.save!
-		redirect_to root_path
+    ordinance = Ordinance.find( params[:assignment][:ordinance_id] )
+    if ordinance.name != "SealingChildToParents" && ordinance.name != "SealingToSpouse"
+      params[:assignment][:user_id] = current_user.id
+      assignment = Assignment.new(params.require(:assignment).permit(:user_id,:contact_id,:person_id,:ordinance_id))
+      assignment.save!
+      redirect_to root_path
+    else
+      render plain: "Assignments for sealings are not supported at this time."
+    end
 	end
 
 	def update
@@ -25,6 +30,60 @@ class AssignmentsController < ApplicationController
 	end
 
 	def index
-		@assignments = current_user.assignments
+    # first we need to update the ordinance statuses
+    people = current_user.assignments.incomplete.pluck(:person_id).uniq
+    people.each do |person_id|
+      response = current_user.client.get("/platform/tree/persons/#{person_id}/ordinances")
+      response.body['persons'].each do |person|
+        person['ordinances'].each do |ord|
+          which = ord['type']
+          status = ord['status']
+          assignment = Assignment.joins(:ordinance).where(person_id: person_id).where( 'ordinances.url = ?', which ).first
+          if assignment
+            assignment.status_id = Status.where( url: status ).pluck( :id ).first
+            assignment.save!
+          end
+        end
+      end
+    end
+		@contacts_with_assignments = current_user.contacts.with_assignments.uniq
+	end
+
+	# /print/:ids
+	def print
+    if params[:id].include?(',')
+      ids = params[:id].split ','
+    else
+      ids = [params[:id]]
+    end
+    work = {}
+    ids.each do |id|
+      assignment = current_user.assignments.find(id)
+      ord = {type:"http://lds.org/#{assignment.ordinance.name}"}
+      if work[assignment.person_id] 
+        work[assignment.person_id].append( ord )
+      else
+        work[assignment.person_id] = [ord]
+      end
+    end
+
+    request = []
+    work.each_key do |key|
+      request <<= {id: key, ordinances: work[key]}
+    end
+    b_hash = {persons: request}
+
+		#b_hash = {persons:[{id:params[:person_id], ordinances: [{type:"http://lds.org/#{params[:ordinance]}"}]}]}
+		b_json = b_hash.to_json
+
+		#b_json = '{"id":"1234"}'
+    begin
+      response = current_user.client.post '/platform/reservations/print-sets', b_json, content_type: 'application/x-fs-v1+json'
+      pdf = current_user.client.get( response['location'], nil, accept: 'application/pdf' )
+      render body: pdf.body, content_type: 'application/pdf'
+    rescue FamilySearch::Error::ClientError => e
+      render plain: e
+    end
+    
 	end
 end
