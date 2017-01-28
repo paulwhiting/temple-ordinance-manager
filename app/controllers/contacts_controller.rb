@@ -6,9 +6,12 @@ class ContactsController < ApplicationController
 
 	def create
 		params[:contact][:user_id] = current_user.id
-		contact = Contact.new(params.require(:contact).permit(:user_id,:first_nm,:last_nm,:email,:phone,:notes))
-		contact.save!
-		redirect_to action: :index
+		@contact = Contact.new(params.require(:contact).permit(:user_id,:first_nm,:last_nm,:email,:phone,:notes))
+    if @contact.save
+      redirect_to action: :index
+    else
+      render :edit
+    end
 	end
 
 	def update

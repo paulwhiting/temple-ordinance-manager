@@ -2,6 +2,6 @@
 <h2><%= @assignment.id ? 'Edit' : 'Add' %> Assignment</h2>
 <%= form_for @assignment, remote: false do |f| %>
 	<div><%= f.hidden_field :id %></div>
-	<div>Notes: <%= f.text_area :notes %></div>
+	<div>Notes: <%= f.text_area :notes, cols: 40, rows: 5 %></div>
 	<div><%= f.submit %></div>
 <% end # form_for %>

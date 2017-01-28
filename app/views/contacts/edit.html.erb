@@ -1,11 +1,22 @@
 <%- title @contact.id ? 'Edit Contact' : 'Add Contact' %>
 <h2><%= @contact.id ? 'Edit' : 'Add' %> Contact</h2>
+<p>This contact information is all optional except for the first name.  Eventually the system will be upgraded to send emails to your contacts with their assignment information, so you may want to populate that field now.</p>
 <%= form_for @contact, remote: false do |f| %>
-	<div><%= f.hidden_field :id %></div>
-	<div>First Name: <%= f.text_field :first_nm %></div>
-	<div>Last Name: <%= f.text_field :last_nm %></div>
-	<div>Email: <%= f.email_field :email %></div>
-	<div>Phone: <%= f.phone_field :phone %></div>
-	<div>Notes: <%= f.text_area :notes %></div>
+	<%= f.hidden_field :id %>
+<% if @contact.errors.any? %>
+<p>The following error occurred:</p>
+<ul class='errorlist'>
+<% @contact.errors.full_messages.each do |msg| %>
+      <li><%= msg %></li>
+    <% end %>
+</ul>
+<% end # if errors %>
+<table>
+	<tr><td>First Name:</td><td><%= f.text_field :first_nm %></td></tr>
+	<tr><td>Last Name:</td><td><%= f.text_field :last_nm %></td></tr>
+	<tr><td>Email:</td><td><%= f.email_field :email %></td></tr>
+	<tr><td>Phone:</td><td><%= f.phone_field :phone %></td></tr>
+	<tr><td>Notes:</td><td><%= f.text_area :notes %></td></tr>
+</table>
 	<div><%= f.submit %></div>
 <% end # form_for %>

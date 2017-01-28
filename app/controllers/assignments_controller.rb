@@ -1,6 +1,8 @@
 class AssignmentsController < ApplicationController
 	def create
     ordinance = Ordinance.find( params[:assignment][:ordinance_id] )
+    person = current_user.people.find( params[:assignment][:person_id] )
+
     if ordinance.name != "SealingChildToParents" && ordinance.name != "SealingToSpouse"
       params[:assignment][:user_id] = current_user.id
       assignment = Assignment.new(params.require(:assignment).permit(:user_id,:contact_id,:person_id,:ordinance_id))
@@ -31,14 +33,14 @@ class AssignmentsController < ApplicationController
 
 	def index
     # first we need to update the ordinance statuses
-    people = current_user.assignments.incomplete.pluck(:person_id).uniq
+    people = current_user.assignments.incomplete.joins(:person).pluck(:fs_pid).uniq
     people.each do |person_id|
       response = current_user.client.get("/platform/tree/persons/#{person_id}/ordinances")
       response.body['persons'].each do |person|
         person['ordinances'].each do |ord|
           which = ord['type']
           status = ord['status']
-          assignment = Assignment.joins(:ordinance).where(person_id: person_id).where( 'ordinances.url = ?', which ).first
+          assignment = Assignment.joins(:ordinance).joins(:person).where('people.fs_pid = ?', person_id).where( 'ordinances.url = ?', which ).first
           if assignment
             assignment.status_id = Status.where( url: status ).pluck( :id ).first
             assignment.save!
@@ -60,10 +62,10 @@ class AssignmentsController < ApplicationController
     ids.each do |id|
       assignment = current_user.assignments.find(id)
       ord = {type:"http://lds.org/#{assignment.ordinance.name}"}
-      if work[assignment.person_id] 
-        work[assignment.person_id].append( ord )
+      if work[assignment.person.fs_pid] 
+        work[assignment.person.fs_pid].append( ord )
       else
-        work[assignment.person_id] = [ord]
+        work[assignment.person.fs_pid] = [ord]
       end
     end
 

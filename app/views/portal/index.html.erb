@@ -7,14 +7,7 @@
 	<% else %>
 		<h2>Your current reservations</h2>
 		<%
-			client = current_user.client
-			begin
-				response = client.get("/platform/reservations/users/#{current_user.uid}")
-				people = Person.from_response( current_user, response )
-			rescue FamilySearch::Error::ClientError
-				people = []
-			end
-			if people.empty?
+			if @people.empty?
 		%>
 			<div>You have no reservations at this time.</div>
 		<% else %>
@@ -27,9 +20,9 @@
 					<th>Since</th>
 					<th>Notes</th>
 				</tr>
-			<% people.each do |person| %>
+			<% @people.each do |person| %>
 				<tr>
-					<td class="person" colspan="6"><%= person.id %> - <%= person.name %></td>
+					<td class="person" colspan="6"><%= person.fs_pid %> - <%= person.name %></td>
 				</tr>
 				<% person.reservations.each do |fso|
               assignment = fso.assigned_contact %>
@@ -67,7 +60,7 @@
 				<!--<tr><td><pre><%#= person.reservations %></pre></td></tr>-->
 				<!--<tr><td><pre><%# person.debug %></pre></td></tr>-->
 				<tr>
-					<td colspan="7"><%= link_to person.comment ? "Edit Comment" : "Add Comment", edit_comment_path(person.id) %> - <%= person.comment %></td>
+					<td colspan="7"><%= link_to person.comment ? "Edit Comment" : "Add Comment", edit_comment_path(person.id) %> - <%= person.comment.comments if person.comment %></td>
 				</tr>
 			<% end # each person %>
 		<% end # people.empty? %>

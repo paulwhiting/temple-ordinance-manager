@@ -16,7 +16,7 @@ class CommentsController < ApplicationController
 
 	def edit
 		@comment = current_user.comments.where( person_id: params[:id] ).first_or_initialize
-		@person = Person.new( current_user, params[:id], [])
+		@person = current_user.people.find( params[:id] )
 	end
 
 	def destroy

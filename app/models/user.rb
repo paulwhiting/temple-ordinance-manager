@@ -3,6 +3,7 @@ class User < ApplicationRecord
 	has_many :contacts
 	has_many :assignments
 	has_many :comments
+	has_many :people
 
 	def self.from_omniauth( auth_hash )
 		user = find_or_create_by( uid: auth_hash['uid'] )
@@ -12,7 +13,7 @@ class User < ApplicationRecord
 	end
 
 	def client
-		@client = FamilySearch::Client.new environment: :beta, access_token: token, key: Rails.application.secrets.familysearch_key
+		@client = FamilySearch::Client.new environment: :production, access_token: token, key: Rails.application.secrets.familysearch_key
 		begin
 			@client.discover!
 		rescue FamilySearch::Error::BadCredentials => e

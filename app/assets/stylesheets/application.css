@@ -15,7 +15,7 @@
  */
 
 body {
-	background-color: yellow;
+	background-color: rgb(223,215,203);
 }
 
 table {
@@ -27,18 +27,26 @@ table, tr, th, td {
 }
 	
 tr, th, td {
-	padding: 15px;
-	margin: 10px;
+	padding: 7px;
 }
 
 th {
-	background-color: LimeGreen;
+	background-color: rgb(172,152,120);
+  color: white;
 }
 td {
-	background-color: GreenYellow;
+	background-color: rgb(242,239,234);
 }
 td.person {
-	background-color: Green;
+	background-color: tan;
+}
+
+td.reserved_color {
+  background-color: red;
+}
+
+td.ready_color {
+  background-color: green;
 }
 
 ul#menu li {
