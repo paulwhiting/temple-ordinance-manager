@@ -1,10 +1,10 @@
 Rails.application.routes.draw do
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
   root to: 'portal#index'
+  get '/debug', to: 'portal#debug'
   get '/auth/familysearch', as: 'login'
   get '/auth/familysearch/callback', to: 'sessions#create'
   delete '/logout', to: 'sessions#destroy'
-  #get '/print/:person_id/:ordinance', to: 'portal#print', as: :print
   resources :comments
   resources :contacts
   resources :assignments do
