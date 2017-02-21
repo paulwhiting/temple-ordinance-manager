@@ -7,7 +7,7 @@
   <% else %>
     <h2>Your current reservations</h2>
     <% if @clienterror %>
-      <div>There was an error reaching FamilySearch.  Please try later.</div>
+      <div>Either you have no reservations or there was an error reaching FamilySearch.  Please check FamilySearch proper to verify you have a reservation and try again sometime.</div>
     <% elsif @people.empty? %>
       <div>You have no reservations at this time.</div>
     <% else %>
