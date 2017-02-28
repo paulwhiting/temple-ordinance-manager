@@ -1,3 +1,10 @@
+<% content_for :head do %>
+<script type="text/javascript">
+function show_hide_row(row) {
+  $("tr."+row).toggle();
+}
+</script>
+<% end %>
 <div>
   <h1 style="text-align:center;">Welcome to your Temple Ordinance Manager (TOM)</h1>
   <% if !current_user %>
@@ -22,11 +29,11 @@
         </tr>
       <% @people.each do |person| %>
         <tr>
-          <td class="person" colspan="6"><%= person.fs_pid %> - <%= person.name %></td>
+          <td class="person" onclick="show_hide_row('rowid<%= person.id %>');" colspan="6"><%= person.fs_pid %> - <%= person.name %></td>
         </tr>
         <% person.reservations.each do |fso|
               assignment = fso.assigned_contact %>
-          <tr>
+          <tr class="rowid<%= person.id %>">
             <td><%= fso.ordinance.name %></td>
             <td><%= fso.created.to_s(:short_date) if fso.created %></td>
             <td><%= fso.modified.to_s(:short_date) if fso.modified %></td>
@@ -59,7 +66,7 @@
         <% end # each ordinance %>
         <!--<tr><td><pre><%#= person.reservations %></pre></td></tr>-->
         <!--<tr><td><pre><%# person.debug %></pre></td></tr>-->
-        <tr>
+        <tr class="rowid<%= person.id %>">
           <td colspan="7"><%= link_to person.comment ? "Edit Comment" : "Add Comment", edit_comment_path(person.id) %> - <%= person.comment.comments if person.comment %></td>
         </tr>
       <% end # each person %>
