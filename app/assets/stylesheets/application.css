@@ -58,4 +58,12 @@ ul#menu li {
 	margin: 0px;
 	background-color: lightgray;
 }
- 
+
+.ord_row {
+  height: 0;
+  display: block;
+  -webkit-transition: height 1.4s ease-out;
+  -moz-transition: height 1.4s ease-out;
+  transition: all 1.4s ease-out;
+}
+

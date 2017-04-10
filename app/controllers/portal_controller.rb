@@ -9,7 +9,6 @@ class PortalController < ApplicationController
         response = current_user.client.get("/platform/reservations/users/#{current_user.uid}?count=10000")
         @people = Person.from_response( current_user, response )
       rescue FamilySearch::Error::ClientError
-        #people = []
         @clienterror = true
       end
       @people.sort! { |a,b| a.name.downcase <=> b.name.downcase }
@@ -21,9 +20,9 @@ class PortalController < ApplicationController
       begin
         response = current_user.client.get("/platform/reservations/users/#{current_user.uid}?count=10000")
         render plain: response.to_yaml
-      rescue FamilySearch::Error::ClientError
+      rescue FamilySearch::Error::ClientError => e
         response = "An error happened.  That's all I know."
-        render plain: response
+        render plain: response + e.to_yaml
       end
     end
   end
