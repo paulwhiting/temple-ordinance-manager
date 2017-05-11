@@ -1,0 +1,14 @@
+development:
+  environment: :beta
+  site:        https://identbeta.familysearch.org
+  api_site:    https://beta.familysearch.org
+ 
+test:
+  environment: :beta
+  site:        https://identbeta.familysearch.org
+  api_site:    https://beta.familysearch.org
+
+production:
+  environment: :production
+  site:        https://ident.familysearch.org
+  api_site:    https://familysearch.org
