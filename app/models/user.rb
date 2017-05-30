@@ -13,7 +13,7 @@ class User < ApplicationRecord
 	end
 
 	def client
-		@client = FamilySearch::Client.new environment: :production, access_token: token, key: Rails.application.secrets.familysearch_key
+		@client = FamilySearch::Client.new environment: Rails.configuration.familysearch['environment'], access_token: token, key: Rails.application.secrets.familysearch_key
 		begin
 			@client.discover!
 		rescue FamilySearch::Error::BadCredentials => e

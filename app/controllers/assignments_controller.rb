@@ -1,15 +1,38 @@
 class AssignmentsController < ApplicationController
 	def create
-    ordinance = Ordinance.find( params[:assignment][:ordinance_id] )
-    person = current_user.people.find( params[:assignment][:person_id] )
-
-    if ordinance.name != "SealingChildToParents" && ordinance.name != "SealingToSpouse"
-      params[:assignment][:user_id] = current_user.id
-      assignment = Assignment.new(params.require(:assignment).permit(:user_id,:contact_id,:person_id,:ordinance_id))
-      assignment.save!
-      redirect_to root_path
+    was_error = 0
+    ordinances = []
+    if params[:assignment][:ordinance_id].is_a? String
+      ordinances = [params[:assignment][:ordinance_id]]
     else
+      ordinances = params[:assignment][:ordinance_id]
+    end
+
+    ActiveRecord::Base.transaction do
+      ordinances.each_pair do |ordinance_id,checked|
+        next if checked != "1"
+        ordinance = Ordinance.find( ordinance_id )
+        person = current_user.people.find( params[:assignment][:person_id] )
+
+        if ordinance.name != "SealingChildToParents" && ordinance.name != "SealingToSpouse"
+          params[:assignment][:user_id] = current_user.id
+          # we could list :ordinance_id here in the permit list as well but since we're accepting
+          # more than one id at a time in the params it gets messy so I just break it out onto
+          # its own line
+          assignment = Assignment.new(params.require(:assignment).permit(:user_id,:contact_id,:person_id))
+          assignment.ordinance_id = ordinance_id
+          assignment.save!
+        else
+          was_error = 1
+          raise ActiveRecord::Rollback
+          break
+        end
+      end
+    end
+    if was_error == 1
       render plain: "Assignments for sealings are not supported at this time."
+    else
+      redirect_to root_path
     end
 	end
 

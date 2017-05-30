@@ -29,7 +29,20 @@ function show_hide_row(row) {
         </tr>
       <% @people.each do |person| %>
         <tr>
-          <td class="person" onclick="show_hide_row('rowid<%= person.id %>');" colspan="6"><%= person.fs_pid %> - <%= person.name %></td>
+          <td class="person" onclick="show_hide_row('rowid<%= person.id %>');" colspan="3"><%= person.fs_pid %> - <%= person.name %></td>
+          <td colspan="3">
+            <%= form_for( Assignment.new ) do |f| %>
+              <%= f.hidden_field :person_id, value: person.id %>
+              <% person.reservations.each do |fso|
+                  assignment = fso.assigned_contact %>
+                  <% if !assignment && fso.ordinance.name != "SealingChildToParents" && fso.ordinance.name != "SealingToSpouse" %>
+                    <%= fso.ordinance.code %>: <%= check_box "assignment[ordinance_id]", fso.ordinance.id %>
+                  <% end %>
+              <% end %>
+              <%= collection_select( :assignment, :contact_id, current_user.contacts.order(:last_nm, :first_nm).all, :id, :last_first_nm, {include_blank: true}) %>
+              <%= f.submit %>
+            <% end %>
+          </td>
         </tr>
         <% person.reservations.each do |fso|
               assignment = fso.assigned_contact %>
@@ -42,12 +55,6 @@ function show_hide_row(row) {
                 <% else %>
                   <% if current_user.contacts.count > 0 %>
                     <% if fso.ordinance.name != "SealingChildToParents" && fso.ordinance.name != "SealingToSpouse" %>
-                      <%= form_for( Assignment.new ) do |f| %>
-                        <%= f.hidden_field :person_id, value: person.id %>
-                        <%= f.hidden_field :ordinance_id, value: fso.ordinance.id %>
-                        <%= collection_select( :assignment, :contact_id, current_user.contacts.order(:last_nm, :first_nm).all, :id, :last_first_nm, {include_blank: true}) %>
-                        <%= f.submit %>
-                      <% end %>
                     <% else %>
                       Sealings not currently supported
                     <% end %>

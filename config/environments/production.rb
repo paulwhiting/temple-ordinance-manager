@@ -1,6 +1,9 @@
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
+  # In production we want to run in a sub url of "tom"
+  config.relative_url_root = '/tom'
+
   # Code is not reloaded between requests.
   config.cache_classes = true
 
