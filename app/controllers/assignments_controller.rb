@@ -105,7 +105,8 @@ class AssignmentsController < ApplicationController
     begin
       response = current_user.client.post '/platform/reservations/print-sets', b_json, content_type: 'application/x-fs-v1+json'
       pdf = current_user.client.get( response['location'], nil, accept: 'application/pdf' )
-      render body: pdf.body, content_type: 'application/pdf'
+      #render body: pdf.body, content_type: 'application/pdf'
+      send_data pdf.body, filename: "#{work.keys.first}_#{Date.today.to_s}.pdf", disposition: 'inline', type: 'application/pdf'
     rescue FamilySearch::Error::ClientError => e
       render plain: e
     end
