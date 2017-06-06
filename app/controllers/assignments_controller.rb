@@ -55,24 +55,53 @@ class AssignmentsController < ApplicationController
 	end
 
 	def index
-    # first we need to update the ordinance statuses
-    people = current_user.assignments.incomplete.joins(:person).pluck(:fs_pid).uniq
+		@contacts_with_assignments = current_user.contacts.with_assignments.order(:last_nm,:first_nm).uniq
+	end
+
+  # this is a huge bottleneck
+  def update_statuses(people)
+    queryTime = 0
+    updateTime = 0
+    personcount = 0
+     # first we need to update the ordinance statuses
+    #people = current_user.assignments.incomplete.joins(:person).pluck(:fs_pid).uniq
     people.each do |person_id|
+      personcount += 1
+      start = Time.now
       response = current_user.client.get("/platform/tree/persons/#{person_id}/ordinances")
+      endtime = Time.now
+      queryTime += (endtime - start) * 1000.0
+      start = endtime
       response.body['persons'].each do |person|
         person['ordinances'].each do |ord|
           which = ord['type']
           status = ord['status']
-          assignment = Assignment.joins(:ordinance).joins(:person).where('people.fs_pid = ?', person_id).where( 'ordinances.url = ?', which ).first
+          #assignment = Assignment.joins(:ordinance).joins(:person).where('people.fs_pid = ?', person_id).where( 'ordinances.url = ?', which ).first
+          assignment = current_user.assignments.joins(:ordinance).joins(:person).where('people.fs_pid = ?', person_id).where( 'ordinances.url = ?', which ).first
           if assignment
             assignment.status_id = Status.where( url: status ).pluck( :id ).first
             assignment.save!
-          end
-        end
-      end
-    end
-		@contacts_with_assignments = current_user.contacts.with_assignments.uniq
-	end
+          end #assignment
+        end # each ord
+      end # each response person
+      endtime = Time.now
+      updateTime += (endtime - start) * 1000.0
+    end # each person
+    return {query: queryTime, update: updateTime, people: personcount}
+ end
+
+  def by_contact
+  end
+
+  def by_contact_incomplete
+    @contact = current_user.contacts.find(params[:id])
+    @stats = update_statuses( @contact.assignments.incomplete.joins(:person).pluck(:fs_pid).uniq )
+    @groups = []
+    @groups << {title: "Baptism", people: @contact.people.needs_baptism.order('people.name')}
+    @groups << {title: "Confirmation", people: @contact.people.needs_confirmation.order('people.name')}
+    @groups << {title: "Initiatory", people: @contact.people.needs_initiatory.order('people.name')}
+    @groups << {title: "Endowment", people: @contact.people.needs_endowment.order('people.name')}
+  end
 
 	# /print/:ids
 	def print
@@ -108,7 +137,7 @@ class AssignmentsController < ApplicationController
       #render body: pdf.body, content_type: 'application/pdf'
       send_data pdf.body, filename: "#{work.keys.first}_#{Date.today.to_s}.pdf", disposition: 'inline', type: 'application/pdf'
     rescue FamilySearch::Error::ClientError => e
-      render plain: e
+      render text: e
     end
     
 	end

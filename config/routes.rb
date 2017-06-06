@@ -10,6 +10,8 @@ Rails.application.routes.draw do
   resources :assignments do
     collection do
       get 'print/:id', action: 'print', as: 'print' # return a pdf of the assignments
+      get 'by_contact/:id', action: 'by_contact', as: 'by_contact'
+      get 'by_contact/:id/incomplete', action: 'by_contact_incomplete', as: 'by_contact_incomplete'
     end
   end
 

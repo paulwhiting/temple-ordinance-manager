@@ -1,0 +1,91 @@
+<%- title 'Incomplete Assignments' %>
+
+<h2>Incomplete Assignments for <%= @contact.full_name %></h2>
+
+<% def output_header(group) %>
+    <table>
+      <tr>
+        <th>Action</th>
+        <th>Ancestor</th>
+        <th>B</th>
+        <th>C</th>
+        <th>I</th>
+        <th>E</th>
+        <th>Notes</th>
+      </tr>
+<% end # output_header %>
+
+<% def output_status(assignment) 
+    status_class = nil
+  
+    if !assignment || !assignment.status %>
+      <td></td>
+<%    return true
+    end # not assignment or not status
+  
+    if assignment.status.invalid?
+      status_class='class="reserved_color" title="This ordinance is not reserved by you in Family Search"'
+    elsif assignment.status.reservable?
+      status_class='class="ready_color" title="This ordinance is not reserved by you in Family Search but can be"'
+    end
+%>
+  <td <%= status_class.html_safe if status_class %>>
+    <%= assignment.status.name %><br>
+    <%= link_to 'edit', edit_assignment_path(assignment) %> <%= link_to 'delete', assignment_path(assignment), method: :delete, data: {confirm: 'This will delete the assignment.  Proceed?'} %> 
+    <%= assignment.created_at.to_s(:short_date) %>
+  </td>
+<% return status_class == nil
+end # output_status %>
+
+<%
+  already_displayed = {}
+  @groups.each do |group|
+    displayed_something = false
+    displayed_header = false %>
+    <h3><%= group[:title] %></h3>
+    <% group[:people].each do |person|
+        next if already_displayed[person.fs_pid]
+        if !displayed_header
+          output_header(group)
+          displayed_header = true
+        end
+        already_displayed[person.fs_pid] = true
+        displayed_something = true
+        all_valid = true
+
+        related_assignments = person.assignments.first.related.pluck(:id)
+        baptism = person.assignments.baptism.first
+        confirmation = person.assignments.confirmation.first
+        initiatory = person.assignments.initiatory.first
+        endowment = person.assignments.endowment.first
+        notes = []
+        notes << "Baptism: " + baptism.notes if baptism && baptism.notes
+        notes << "Confirmation: " + confirmation.notes if confirmation && confirmation.notes
+        notes << "Initiatory: " + initiatory.notes if initiatory && initiatory.notes
+        notes << "Endowment: " + endowment.notes if endowment && endowment.notes
+    %>
+      <tr>
+        <td><%= link_to 'Print', print_assignments_path(related_assignments.join(',')) %><%#= link_to 'Edit Note', edit_assignment_path(assignment) %></td>
+        <td><%= person.fs_pid %> - <%= person.name %></td>
+        <% all_valid &= output_status(baptism) %>
+        <% all_valid &= output_status(confirmation) %>
+        <% all_valid &= output_status(initiatory) %>
+        <% all_valid &= output_status(endowment) %>
+        <td><%= 'WARNING: one or more ordinances have a status requiring your attention.  Hover over the colored cell for details!' if !all_valid %><%= !all_valid && !notes.empty? ? " - " : "" %><%= notes.join(', ') %></td>
+      </tr>
+    <% end # each person in the group %>
+    </table>
+    <% if !displayed_something %>
+      <p>No individuals ready</p>
+    <% end # if not displayed something %>
+  <% end # each group %>
+</table>
+
+<br>
+<br>
+<hr>
+<div>
+Person count: <%= @stats[:people] %><br>
+Query time: <%= @stats[:query] %><br>
+Update time: <%= @stats[:update] %><br>
+</div>

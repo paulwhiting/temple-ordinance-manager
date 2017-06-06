@@ -3,36 +3,20 @@
 <h2>Assignments you've made</h2>
 
 <table>
+  <tr><th></th><th colspan="2">Ordinance Assignments</th></tr>
 	<tr>
-		<th>Action</th>
-		<th>Ancestor</th>
-		<th>Ordinance</th>
-		<th>Status</th>
-		<th>Since</th>
-		<th>Notes</th>
+		<th>Contact</th>
+		<th>Incomplete</th>
+		<th>Complete</th>
+		<th>Total</th>
 	</tr>
 <% @contacts_with_assignments.each do |contact| %>
-  <tr><td class="person" colspan="7"><%= contact.full_name %></td></tr>
-  <%  contact.assignments.order(:person_id, :ordinance_id).each do |assignment| 
-      related_assignments = assignment.related.pluck(:id)
-      status_class = nil
-      if assignment.status.name == 'Reserved'
-        err_msg = 'WARNING: This assignment is reserved in FamilySearch by someone besides you!'
-        status_class='class="reserved_color"'
-      elsif assignment.status.name == 'Ready'
-        err_msg = 'WARNING: This assignment is not reserved in FamilySearch by anyone.'
-        status_class='class="ready_color"'
-      end
-  %>
-    <tr>
-      <td><%= link_to 'edit', edit_assignment_path(assignment) %> <%= link_to 'delete', assignment_path(assignment), method: :delete, data: {confirm: 'This will delete the assignment.  Proceed?'} %></td>
-      <td><%= assignment.person.fs_pid %> - <%= assignment.person.name %></td>
-      <td><%= assignment.ordinance.name %></td>
-      <td <%= status_class.html_safe if status_class %>><%= assignment.status.name if assignment.status %></td>
-      <td><%= assignment.created_at.to_s(:short_date) %></td>
-      <td><%= err_msg + ' - ' if err_msg %><%= link_to 'Print', print_assignments_path(related_assignments.join(',')) %> - <%= link_to 'Edit Note', edit_assignment_path(assignment) %> - <%= assignment.notes %></td>
-    </tr>
-  <% end %>
-<% end %>
+  <tr>
+    <td class="person"><%= contact.full_name %></td>
+    <td style="text-align:center"><%= link_to contact.assignments.incomplete.count, by_contact_incomplete_assignments_path(contact) %></td>
+    <td style="text-align:center"><%= contact.assignments.complete.count %></td>
+    <td style="text-align:center"><%= contact.assignments.count %></td>
+  </tr>
+<% end # each contact %>
 </table>
 

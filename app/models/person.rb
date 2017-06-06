@@ -3,8 +3,14 @@ class Person < ApplicationRecord
   validates :name, presence: true
 
   has_one :comment
-  #attr_reader :name, :id, :debug, :links, :reservations
+  has_many :assignments
+  has_many :ordinances, through: :assignments
   attr_accessor :reservations, :current_user
+
+  scope :needs_baptism, -> {joins(:assignments).merge(Assignment.baptism.incomplete)}
+  scope :needs_confirmation, -> {joins(:assignments).merge(Assignment.confirmation.incomplete)}
+  scope :needs_initiatory, -> {joins(:assignments).merge(Assignment.initiatory.incomplete)}
+  scope :needs_endowment, -> {joins(:assignments).merge(Assignment.endowment.incomplete)}
 
   #def self.fs_initialize( current_user, person_id, reservations )
     #@current_user = current_user
@@ -18,20 +24,9 @@ class Person < ApplicationRecord
     #@reservations = FSOrdinance.from_reservation( @current_user, self, reservations )
   #end
 
-  #def ordinances
-    #return @ordinances if @ordinances
-    #@ordinances = Ordinance.from_response(@current_user.client.get(@links['ordinances']['href']))
-  #end
-
   #def reservations
     #return @reservations if @reservations
     ##@reservations = @current_user.client.get(@links['ordinance-reservations']['href']).to_yaml
-  #end
-
-  #def comment
-    #return @comment if @comment
-    #comments = @current_user.comments.where( person_id: @id ).first
-    #@comment = comments ? comments.comments : nil
   #end
 
   def next_reserved_ordinance

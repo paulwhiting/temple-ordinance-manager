@@ -3,6 +3,7 @@ class Contact < ApplicationRecord
   validates_format_of :email, with: /@/, allow_blank: true
 
 	has_many :assignments, dependent: :destroy
+	has_many :people, through: :assignments
 
   scope :with_assignments, -> {joins(:assignments)}
 
